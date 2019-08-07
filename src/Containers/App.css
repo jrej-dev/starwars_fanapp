@@ -29,14 +29,5 @@
 }
 
 h1{
-  font-size: 14px;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  font-size: 16px;
 }

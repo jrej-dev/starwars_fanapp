@@ -1,62 +1,60 @@
 import React, { Component } from 'react';
+import Form from 'react-bootstrap/Form';
+import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-
-
 
 class Data extends Component{
   constructor(){
     super()
     this.state = {
-      people:[],
-      planets:[],
-      species:[]
+      apiList:[],
+      keys:[],
+      data:[]
     }
   }
+
   componentDidMount(){
-    Promise.all([
-    fetch('https://swapi.co/api/people/').then( people => people.json()),
-    fetch('https://swapi.co/api/planets/').then( planets => planets.json()),
-    fetch('https://swapi.co/api/species/').then( species => species.json())
-  ])    
-    .then(([people,planets,species]) => ([people.results, planets.results, species.results]))
-    .then(results => results.map(x=>x))
-    .then(x => this.setState({ people : x[0] }) +
-    this.setState({ planets : x[1] }) +
-    this.setState({ species : x[2] })
-    )
-    .then(y => this.setState({ people : y.name }) +
-    this.setState({ planets : y.name }) +
-    this.setState({ species : y.name })
-    )
-       
-    .catch(err => console.log('Epic fail',err));    
+    fetch('https://swapi.co/api/')
+    .then(response => response.json())
+    .then(data => this.setState({ apiList : data, keys: Object.keys(data) }))
+    .catch(err => console.log('Fail',err));    
+
+  }
+
+  fetchData = (event) => {
+    const { apiList } = this.state;
+    fetch(apiList[event])
+    .then(response => response.json())
+    .then(results => this.setState ({ data : results }))
+    .catch(err => console.log('Fail',err));  
+  }
+
+  handleSelect = (event) => {
+    this.fetchData(event.target.value);
   }
 
   render(){
-    const { people } = this.state;   
+    const { keys, data } = this.state;
     return(
-      <Col xs={12} className="col-centered">
-        <table>
-          <h1>People From StarWars</h1>
+      <div>
+        <h1>Data From StarWars</h1>
+        <Row>
+          <Col xs={6} className="col-centered mt-3">
+            <Form onChange={this.handleSelect}>
+              <Form.Control as="select">
+                <option value=""> Select Subject... </option>
+                {keys.map(i=> <option value={i} key={i}>{i}</option>)}
+              </Form.Control>
+            </Form>
+          </Col>
+        </Row>
+        <table className="mt-3">
           <tbody className='tableBody'>
-            <tr className='tableTitleRow'>
-              <th>Name</th>
-              <th>Gender</th>
-              <th>Species</th>
-              <th>Height</th>
-              <th>Homeworld</th>
-            </tr>
-            {people.map(i=><tr key={i.name}> 
-              <td>{i.name}</td>
-              <td>{i.gender}</td>
-              <td>{i.species}</td>
-              <td>{i.height}</td>
-              <td>{i.homeworld}</td>
-            </tr>
-            )}
+            {data.map(i=> <tr key={i}>{i}</tr>)}
           </tbody>
-        </table>
-      </Col>
+        </table>          
+      
+      </div>
     )
   }
 }
