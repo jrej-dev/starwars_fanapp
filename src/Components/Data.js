@@ -7,34 +7,48 @@ class Data extends Component{
   constructor(){
     super()
     this.state = {
-      apiList:[],
+      apiList:{},
       keys:[],
-      data:[]
+      data:[],
+      select:"people",
+      tableTitles:[]
     }
   }
 
   componentDidMount(){
     fetch('https://swapi.co/api/')
     .then(response => response.json())
-    .then(data => this.setState({ apiList : data, keys: Object.keys(data) }))
-    .catch(err => console.log('Fail',err));    
-
-  }
-
-  fetchData = (event) => {
-    const { apiList } = this.state;
-    fetch(apiList[event])
-    .then(response => response.json())
-    .then(results => this.setState ({ data : results }))
-    .catch(err => console.log('Fail',err));  
+    .then(results => this.setState({ apiList : results, keys: Object.keys(results) }))
+    .catch(err => console.log('Fail',err));
+    this.fetchData()    
   }
 
   handleSelect = (event) => {
-    this.fetchData(event.target.value);
+    this.setState ({ select : event.target.value });
+    this.fetchData();
+  }
+
+  fetchData = () => {
+    const { apiList, select } = this.state;
+    fetch(apiList[select])
+    .then(response => response.json())
+    .then(response => response.results)
+    .then(results => this.setState ({ data : results }))
+    .catch(err => console.log('Fail',err)); 
+
+    this.createTableTitle() 
+  }
+
+  createTableTitle = () =>{
+    const { data } = this.state;
+    if (data.length > 0){
+      const titles = Object.keys(data[0]).slice(0, 4);
+      this.setState ({ tableTitles : titles });
+    }
   }
 
   render(){
-    const { keys, data } = this.state;
+    const { keys, data, tableTitles } = this.state;
     return(
       <div>
         <h1>Data From StarWars</h1>
@@ -42,18 +56,26 @@ class Data extends Component{
           <Col xs={6} className="col-centered mt-3">
             <Form onChange={this.handleSelect}>
               <Form.Control as="select">
-                <option value=""> Select Subject... </option>
                 {keys.map(i=> <option value={i} key={i}>{i}</option>)}
               </Form.Control>
             </Form>
           </Col>
         </Row>
-        <table className="mt-3">
-          <tbody className='tableBody'>
-            {data.map(i=> <tr key={i}>{i}</tr>)}
-          </tbody>
-        </table>          
-      
+        <Row>
+          <Col className="col-centered">
+            <table>
+              <tbody className="tableBody">
+                <tr className='tableTitleRow'>
+                  {tableTitles.map(title => <td>{title}</td>)}
+                </tr>
+                {data.map(i=><tr key={i.name}> 
+                  <td>{i.name}</td>
+                </tr>
+                )}
+              </tbody>
+            </table>   
+          </Col>  
+        </Row> 
       </div>
     )
   }
