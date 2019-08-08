@@ -9,9 +9,7 @@ class Data extends Component{
     this.state = {
       apiList:{},
       keys:[],
-      data:[],
-      select:"people",
-      tableTitles:[]
+      data:[{"Please Select Above...":"Fetch Data"}],
     }
   }
 
@@ -20,35 +18,25 @@ class Data extends Component{
     .then(response => response.json())
     .then(results => this.setState({ apiList : results, keys: Object.keys(results) }))
     .catch(err => console.log('Fail',err));
-    this.fetchData()    
   }
 
   handleSelect = (event) => {
-    this.setState ({ select : event.target.value });
-    this.fetchData();
+    this.fetchData(event.target.value);
   }
 
-  fetchData = () => {
-    const { apiList, select } = this.state;
-    fetch(apiList[select])
+  fetchData = (value) => {
+    const { apiList,data } = this.state;
+    fetch(apiList[value])
     .then(response => response.json())
     .then(response => response.results)
     .then(results => this.setState ({ data : results }))
     .catch(err => console.log('Fail',err)); 
-
-    this.createTableTitle() 
   }
 
-  createTableTitle = () =>{
-    const { data } = this.state;
-    if (data.length > 0){
-      const titles = Object.keys(data[0]).slice(0, 4);
-      this.setState ({ tableTitles : titles });
-    }
-  }
 
   render(){
     const { keys, data, tableTitles } = this.state;
+    const titles = Object.keys(data[0]).slice(0, 4);
     return(
       <div>
         <h1>Data From StarWars</h1>
@@ -56,6 +44,7 @@ class Data extends Component{
           <Col xs={6} className="col-centered mt-3">
             <Form onChange={this.handleSelect}>
               <Form.Control as="select">
+                <option value="">Select subject...</option>
                 {keys.map(i=> <option value={i} key={i}>{i}</option>)}
               </Form.Control>
             </Form>
@@ -66,10 +55,13 @@ class Data extends Component{
             <table>
               <tbody className="tableBody">
                 <tr className='tableTitleRow'>
-                  {tableTitles.map(title => <td>{title}</td>)}
+                  {titles.map(title => <td key={title}>{title}</td>)}
                 </tr>
                 {data.map(i=><tr key={i.name}> 
-                  <td>{i.name}</td>
+                  <td>{Object.values(i)[0]}</td>
+                  <td>{Object.values(i)[1]}</td>
+                  <td>{Object.values(i)[2]}</td>
+                  <td>{Object.values(i)[3]}</td>
                 </tr>
                 )}
               </tbody>
