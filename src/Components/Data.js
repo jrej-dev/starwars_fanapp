@@ -9,15 +9,21 @@ class Data extends Component{
     this.state = {
       apiList:{},
       keys:[],
-      data:[{"Please Select Above...":"Fetch Data"}],
+      data:[{"Loading...":null}],
     }
   }
 
   componentDidMount(){
     fetch('https://swapi.co/api/')
     .then(response => response.json())
-    .then(results => this.setState({ apiList : results, keys: Object.keys(results) }))
+    .then(results => this.setState({ apiList : results, keys: Object.keys(results)}))
     .catch(err => console.log('Fail',err));
+
+    fetch('https://swapi.co/api/people')
+    .then(response => response.json())
+    .then(response => response.results)
+    .then(results => this.setState ({ data : results }))
+    .catch(err => console.log('Fail',err)); 
   }
 
   handleSelect = (event) => {
@@ -25,7 +31,7 @@ class Data extends Component{
   }
 
   fetchData = (value) => {
-    const { apiList,data } = this.state;
+    const { apiList } = this.state;
     fetch(apiList[value])
     .then(response => response.json())
     .then(response => response.results)
@@ -35,7 +41,7 @@ class Data extends Component{
 
 
   render(){
-    const { keys, data, tableTitles } = this.state;
+    const { keys, data } = this.state;
     const titles = Object.keys(data[0]).slice(0, 4);
     return(
       <div>
@@ -44,24 +50,23 @@ class Data extends Component{
           <Col xs={6} className="col-centered mt-3">
             <Form onChange={this.handleSelect}>
               <Form.Control as="select">
-                <option value="">Select subject...</option>
                 {keys.map(i=> <option value={i} key={i}>{i}</option>)}
               </Form.Control>
             </Form>
           </Col>
         </Row>
-        <Row>
+        <Row className='mt-4'>
           <Col className="col-centered">
             <table>
               <tbody className="tableBody">
                 <tr className='tableTitleRow'>
-                  {titles.map(title => <td key={title}>{title}</td>)}
+                  {titles.map(title => <th key={title}>{title}</th>)}
                 </tr>
-                {data.map(i=><tr key={i.name}> 
-                  <td>{Object.values(i)[0]}</td>
-                  <td>{Object.values(i)[1]}</td>
-                  <td>{Object.values(i)[2]}</td>
-                  <td>{Object.values(i)[3]}</td>
+                {data.map(i=><tr key={Object.values(i)[0]}> 
+                  <td key={Object.values(i)[0]+0}>{Object.values(i)[0]}</td>
+                  <td key={Object.values(i)[0]+1}>{Object.values(i)[1]}</td>
+                  <td key={Object.values(i)[0]+2}>{Object.values(i)[2]}</td>
+                  <td key={Object.values(i)[0]+3}>{Object.values(i)[3]}</td>
                 </tr>
                 )}
               </tbody>

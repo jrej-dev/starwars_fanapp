@@ -31,3 +31,27 @@
 h1{
   font-size: 16px;
 }
+
+th, td {
+  padding: 15px;
+  text-align: left;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+tr:nth-child(even) {background-color: #f2f2f2;}
+
+th {
+  background-color: SlateGrey;
+  color: white;
+}
+
+tr:hover{
+  background-color: #CDD2D6;
+  cursor: pointer;
+}
