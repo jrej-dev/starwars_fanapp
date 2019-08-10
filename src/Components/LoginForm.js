@@ -8,42 +8,75 @@ class LoginForm extends Component{
   constructor(){
     super()
     this.state = {
+      user:[],
+      checkbox:false,
       validated:false,
-      setValidated:false
+      isInvalid: false
     }
   }
 
   handleSubmit = (event) => {
     const form = event.currentTarget;
-    console.log(event.currentTarget.checkValidity());
+    event.currentTarget.checkValidity();
     if (form.checkValidity() === false) {
       event.preventDefault();
       event.stopPropagation();
+      this.setState ({ isInvalid : true });
     } else{
-        this.setState ({ setValidated : true });
-      }
+      this.handleValues(event);
+      this.setState ({ validated : true , isInvalid : false });
+    }
+  };
+
+  checkboxToggle = (event) => {
+    this.setState ({ checkbox: !this.state.checkbox })
+  }  
+
+  handleValues = (event) => {
+    this.setState ({ user : [
+        {
+          email:event.target.elements.email.value,
+          password:event.target.elements.password.value
+        }
+      ] 
+    })
+    const { checkbox, user } = this.state;
+    if (checkbox) {
+      localStorage.setItem('user', JSON.stringify(user));
+    }  
+  };
+
+  handleEmailChange = (event) => {
+    this.setState ({ isInvalid : false });
   };
   
   render(){
-    const { validated, setValidated } = this.state;
-    if ( setValidated ){
+    const { validated, isInvalid } = this.state;
+    if ( validated ){
       return <Redirect to='/data'/>;} 
     return (
       <Col xs={6} className="col-centered">
-        <Form noValidate validated={validated} onSubmit={this.handleSubmit}>
-          <Form.Group controlId="formBasicEmail">
+        <Form noValidate validated={validated} onSubmit={this.handleSubmit} >
+          <Form.Group controlId="formEmail">
             <Form.Label>Email address</Form.Label>
-            <Form.Control type="email" placeholder="Enter email" required />
-            <Form.Control.Feedback type="invalid">
+            <Form.Control 
+              required 
+              type="email" 
+              name="email" 
+              placeholder="Enter email" 
+              isInvalid={isInvalid} 
+              onChange={this.handleEmailChange}
+            />
+            <Form.Control.Feedback type="invalid" className="invalid-feedback">
               Please choose a valid email.
             </Form.Control.Feedback>
           </Form.Group>
-          <Form.Group controlId="formBasicPassword">
+          <Form.Group controlId="formPassword">
             <Form.Label>Password</Form.Label>
-            <Form.Control type="password" placeholder="Password" required/>
+            <Form.Control required name="password" type="password" placeholder="Password"/>
           </Form.Group>
           <Form.Group controlId="formBasicChecbox">
-            <Form.Check type="checkbox" label="Remember Me" />
+            <Form.Check type="checkbox" name="saveUser" label="Remember Me" onChange={this.checkboxToggle} />
           </Form.Group>
             <Button variant="primary" type="submit">   
                 Login  
