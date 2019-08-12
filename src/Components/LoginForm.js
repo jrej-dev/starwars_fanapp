@@ -8,10 +8,21 @@ class LoginForm extends Component{
   constructor(){
     super()
     this.state = {
-      user:[],
-      checkbox:false,
+      user:{},
+      isChecked:false,
       validated:false,
       isInvalid: false
+    }
+  }
+
+  componentDidMount(){
+    if (localStorage.getItem('savedUser')!==null){
+      localStorage.getItem('savedUser')
+      this.setState({ user: JSON.parse(localStorage.getItem('savedUser'))});
+    }
+    if (localStorage.getItem('currentUser')!==null){
+      localStorage.setItem('currentUser', JSON.stringify(''));
+      this.userCallBackMethod('');
     }
   }
 
@@ -29,29 +40,31 @@ class LoginForm extends Component{
   };
 
   checkboxToggle = (event) => {
-    this.setState ({ checkbox: !this.state.checkbox })
+    this.setState ({ isChecked: !this.state.isChecked })
   }  
 
   handleValues = (event) => {
-    this.setState ({ user : [
-        {
-          email:event.target.elements.email.value,
-          password:event.target.elements.password.value
-        }
-      ] 
-    })
-    const { checkbox, user } = this.state;
-    if (checkbox) {
-      localStorage.setItem('user', JSON.stringify(user));
+    let userData = 
+      {
+        email:event.target.elements.email.value,
+        password:event.target.elements.password.value
+      };
+    this.userCallBackMethod(userData.email);
+    if (this.state.isChecked) {
+      localStorage.setItem('savedUser', JSON.stringify(userData));
     }  
   };
+
+  userCallBackMethod = (value) =>{
+    this.props.userEmail(value);
+  }
 
   handleEmailChange = (event) => {
     this.setState ({ isInvalid : false });
   };
   
   render(){
-    const { validated, isInvalid } = this.state;
+    const { validated, isInvalid, user } = this.state;
     if ( validated ){
       return <Redirect to='/data'/>;} 
     return (
@@ -66,6 +79,7 @@ class LoginForm extends Component{
               placeholder="Enter email" 
               isInvalid={isInvalid} 
               onChange={this.handleEmailChange}
+              defaultValue={user.email}
             />
             <Form.Control.Feedback type="invalid" className="invalid-feedback">
               Please choose a valid email.
@@ -73,7 +87,13 @@ class LoginForm extends Component{
           </Form.Group>
           <Form.Group controlId="formPassword">
             <Form.Label>Password</Form.Label>
-            <Form.Control required name="password" type="password" placeholder="Password"/>
+            <Form.Control 
+              required 
+              name="password" 
+              type="password" 
+              placeholder="Password"
+              defaultValue={user.password}
+            />
           </Form.Group>
           <Form.Group controlId="formBasicChecbox">
             <Form.Check type="checkbox" name="saveUser" label="Remember Me" onChange={this.checkboxToggle} />
