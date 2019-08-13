@@ -6,17 +6,17 @@
   font-family: 'Roboto Slab', serif;
 }
 
-.col-centered{
+.col-centered {
     float: none;
     margin: 0 auto;
 }
 
-h1{
+h1 {
   font-family: 'Montserrat Subrayada', sans-serif;
   font-size: 22px;
 }
 
-h2{
+h2 {
   font-family: 'Montserrat Subrayada', sans-serif;
   font-size: 18px;
 }
@@ -39,7 +39,7 @@ th {
   color: white;
 }
 
-tr:hover{
+.selectRow:hover {
   background-color: #CDD2D6;
   cursor: pointer;
 }

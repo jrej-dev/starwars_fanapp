@@ -1,78 +1,81 @@
 import { Redirect } from 'react-router-dom';
 import React, { Component } from 'react';
+//Component
+import SearchBar from '../Components/SearchBar';
+//Libraries
 import Fuse from "fuse.js";
-
+import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
 
-import SearchBar from '../Components/SearchBar';
-
-class Data extends Component{
-  constructor(){
+class Data extends Component {
+  constructor() {
     super()
     this.state = {
-      apiList:{},
-      keys:[],
-      data:[{"Loading...":null}],
+      apiList: {},
+      keys: [],
+      data: [{ "Loading...": null }],
       select: "people",
-      searchField: "",
-      searchResults:[],
+      searchField: '',
+      searchResults: [],
       isClicked: false,
       clickUrl: "",
     }
   }
 
-  componentDidMount(){
+  componentDidMount() {
+    //Fetching initial keys and api addresses.
     fetch('https://swapi.co/api/')
-    .then(response => response.json())
-    .then(results => this.fetchData(results[this.state.select],[],results))
-    .catch(err => console.log('Fail',err));
-
-    if (localStorage.getItem('currentUser')!==null){
+      .then(response => response.json())
+      .then(results => this.fetchData(results[this.state.select], [], results))
+      .catch(err => console.log('Fail', err));
+    //Getting current user back to NavBar component.
+    if (localStorage.getItem('currentUser') !== null) {
       localStorage.getItem('currentUser')
       this.userCallBackMethod(JSON.parse(localStorage.getItem('currentUser')));
     }
-  }  
-
+  }
+  //Main fetching function.
   fetchData = (url, data, results) => {
     fetch(url)
       .then(response => response.json())
       .then(response => {
         const retrivedData = data.concat(response.results)
-        this.setState ({ data : retrivedData });
-        this.newFuzzySearch(this.state.searchField,retrivedData);
-        if(response.next !== null) {
+        this.setState({ data: retrivedData });
+        this.newFuzzySearch(this.state.searchField, retrivedData);
+        //Using recursive function to fetch all API pages.
+        if (response.next !== null) {
           this.fetchData(response.next, retrivedData)
         } else {
-          this.setState ({ data : retrivedData });
-          this.newFuzzySearch(this.state.searchField,retrivedData);
+          this.setState({ data: retrivedData });
+          this.newFuzzySearch(this.state.searchField, retrivedData);
         }
       })
-      .catch(err => console.log('Fail',err));
-    if (results !== undefined){
-    this.setState({ apiList : results, keys: Object.keys(results)})
+      .catch(err => console.log('Fail', err));
+    if (results !== undefined) {
+      this.setState({ apiList: results, keys: Object.keys(results) })
     }
-  } 
+  }
 
   handleSelect = (event) => {
-    this.fetchData(this.state.apiList[event.target.value],[]);
-    this.setState ({ select : event.target.value });
+    this.fetchData(this.state.apiList[event.target.value], []);
+    this.setState({ select: event.target.value });
   }
 
   handleClick = (event) => {
     this.props.url(event);
-    this.setState ({ isClicked : !this.state.isClicked });
+    this.setState({ isClicked: !this.state.isClicked });
   }
 
   handleSearch = (event) => {
-    this.setState ({ searchField : event.target.value });
+    this.setState({ searchField: event.target.value });
     this.newFuzzySearch(event.target.value, this.state.data);
   }
 
-  newFuzzySearch = (searchField,data) => {
-    const titles= Object.keys(data[0]);
-    let options = {
+  //Fuzzy search function from fuse.js library.
+  newFuzzySearch = (searchField, data) => {
+    const titles = Object.keys(data[0]);
+    var options = {
       shouldSort: true,
       tokenize: true,
       matchAllTokens: true,
@@ -81,34 +84,36 @@ class Data extends Component{
       distance: 100,
       keys: titles
     };
-    let fuse = new Fuse(data, options);
-    let result = fuse.search(searchField);
-    this.setState ({ searchResults : result });
+    var fuse = new Fuse(data, options);
+    var result = fuse.search(searchField);
+    this.setState({ searchResults: result });
   }
 
-  userCallBackMethod = (value) =>{
-  this.props.userEmail(value);
+  userCallBackMethod = (value) => {
+    this.props.userEmail(value);
   }
 
-  render(){
-    const { keys, data, isClicked, searchResults } = this.state;
+  render() {
+    const { keys, data, isClicked, searchResults, searchField } = this.state;
     const titles = Object.keys(data[0]).slice(0, 4);
-    
-    if (searchResults.length > 0) {
-      var filteredData = searchResults
-    } else { 
-      filteredData = data;}
 
-    if ( isClicked ){
-      return <Redirect to='/info'/>;} 
-    return(
+    if (searchField !== "") {
+      var filteredData = searchResults
+    } else {
+      filteredData = data;
+    }
+    if (isClicked) {
+      return <Redirect to='/info' />;
+    }
+
+    return (
       <div>
         <h2>Data From StarWars</h2>
         <Row className="mt-4">
           <Col xs={4} className="selectField">
             <Form onChange={this.handleSelect}>
               <Form.Control as="select">
-                {keys.map(i=> <option value={i} key={i}>{i}</option>)}
+                {keys.map(i => <option value={i} key={i}>{i}</option>)}
               </Form.Control>
             </Form>
           </Col>
@@ -121,19 +126,20 @@ class Data extends Component{
             <table>
               <tbody className="tableBody">
                 <tr className='tableTitleRow'>
-                  {titles.map(title => <th key={title}>{title.replace(/_/g," ")}</th>)}
+                  {titles.map(title => <th key={title}>{title.replace(/_/g, " ")}</th>)}
                 </tr>
-                {filteredData.map(i=><tr key={Object.values(i)[0]} onClick={this.handleClick.bind(this, i.url)}> 
-                  <td key={Object.values(i)[0]+0}>{Object.values(i)[0]}</td>
-                  <td key={Object.values(i)[0]+1}>{Object.values(i)[1]}</td>
-                  <td key={Object.values(i)[0]+2}>{Object.values(i)[2]}</td>
-                  <td key={Object.values(i)[0]+3}>{Object.values(i)[3]}</td>
-                </tr>
+                {filteredData.map(i =>
+                  <tr key={Object.values(i)[0]} onClick={this.handleClick.bind(this, i.url)} className='selectRow'>
+                    <td key={Object.values(i)[0] + 0}>{Object.values(i)[0]}</td>
+                    <td key={Object.values(i)[0] + 1}>{Object.values(i)[1]}</td>
+                    <td key={Object.values(i)[0] + 2}>{Object.values(i)[2]}</td>
+                    <td key={Object.values(i)[0] + 3}>{Object.values(i)[3]}</td>
+                  </tr>
                 )}
               </tbody>
-            </table>   
-          </Col>  
-        </Row> 
+            </table>
+          </Col>
+        </Row>
       </div>
     )
   }
