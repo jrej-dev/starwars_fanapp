@@ -41,7 +41,7 @@ class Data extends Component {
       .then(response => response.json())
       .then(response => {
         const retrivedData = data.concat(response.results)
-        this.handleNestedUrl(retrivedData);
+        this.setState({ data: retrivedData });
         this.newFuzzySearch(this.state.searchField, retrivedData);
         //Using recursive function to fetch all API pages.
         if (response.next !== null) {

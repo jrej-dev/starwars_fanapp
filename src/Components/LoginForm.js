@@ -85,7 +85,7 @@ class LoginForm extends Component {
               defaultValue={user.email}
             />
             <Form.Control.Feedback type="invalid" className="invalid-feedback">
-              Please choose a valid email.
+              Please enter your email.
             </Form.Control.Feedback>
           </Form.Group>
           <Form.Group controlId="formPassword">
@@ -99,6 +99,9 @@ class LoginForm extends Component {
               placeholder="Password"
               defaultValue={user.password}
             />
+            <Form.Control.Feedback type="invalid" className="invalid-feedback">
+              Please enter any password.
+            </Form.Control.Feedback>
           </Form.Group>
           <Form.Group controlId="formBasicChecbox">
             <Form.Check
