@@ -97,6 +97,7 @@ class LoginForm extends Component {
               name="password"
               type="password"
               placeholder="Password"
+              isInvalid={isInvalid}
               defaultValue={user.password}
             />
             <Form.Control.Feedback type="invalid" className="invalid-feedback">

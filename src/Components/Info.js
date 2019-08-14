@@ -19,7 +19,7 @@ class Info extends Component {
   }
 
   handleNestedUrl = (results) => {
-    this.setState({ data: results })
+    this.setState({ data: results });
     const titles = Object.keys(results);
     const values = Object.values(results);
 
