@@ -29,6 +29,10 @@ class App extends Component {
     this.setState({ infoUrl: value });
   }
 
+  handleData = (value) => {
+    this.setState({ data: value });
+  }
+
   render() {
     return (
       //Use of HashRouter for gh-pages deployment

@@ -41,19 +41,92 @@ class Data extends Component {
       .then(response => response.json())
       .then(response => {
         const retrivedData = data.concat(response.results)
-        this.setState({ data: retrivedData });
+        this.handleNestedUrl(retrivedData);
         this.newFuzzySearch(this.state.searchField, retrivedData);
         //Using recursive function to fetch all API pages.
         if (response.next !== null) {
           this.fetchData(response.next, retrivedData)
         } else {
-          this.setState({ data: retrivedData });
+          this.handleNestedUrl(retrivedData);
           this.newFuzzySearch(this.state.searchField, retrivedData);
         }
       })
       .catch(err => console.log('Fail', err));
     if (results !== undefined) {
       this.setState({ apiList: results, keys: Object.keys(results) })
+    }
+  }
+
+  handleNestedUrl = (retrivedData) => {
+    this.setState({ data: retrivedData });
+    const titles = Object.keys(retrivedData[0]);
+
+    for (let i = 0; i < retrivedData.length; i++) {
+      const values = Object.values(retrivedData[i]);
+
+      for (let j = 0; j < titles.length; j++) {
+        let title = titles[j];
+
+        if (values[j].length === 0) {
+          this.setState(prevState => ({
+            data: prevState.data.map(item =>
+              item.name === values[0] ? {
+                ...item,
+                [title]: "n/a"
+              } : item
+            )
+          }))
+        } else if (Array.isArray(values[j])) {
+          let valuesArray = [];
+          values[j].map(url =>
+            fetch(url)
+              .then(response => response.json())
+              .then(results => {
+                if (results.name !== undefined) {
+                  valuesArray.push(results.name);
+                } else if (results.title !== undefined) {
+                  valuesArray.push(results.title);
+                } else if (results.key !== undefined) {
+                  valuesArray.push(results.key);
+                }
+              })
+              .catch(err => console.log('Fail', err))
+          );
+          this.setState(prevState => ({
+            data: prevState.data.map(item =>
+              item.name === values[0] ? {
+                ...item,
+                [title]: valuesArray
+              } : item
+            )
+          }))
+        } else if (values[j].indexOf("swapi") !== -1) {
+          fetch(values[j])
+            .then(response => response.json())
+            .then(results =>
+              this.setState(prevState => ({
+                data: prevState.data.map(item =>
+                  item.name === values[0] ? {
+                    ...item,
+                    [title]: results.name,
+                    url: this.props.url
+                  } : item
+                )
+              }))
+            )
+            .catch(err => console.log('Fail', err));
+        } else if (values[j].match(/:\d{2}:/g)) {
+          const createdDate = values[j].slice(0, 10);
+          this.setState(prevState => ({
+            data: prevState.data.map(item =>
+              item.name === values[0] ? {
+                ...item,
+                [title]: createdDate
+              } : item
+            )
+          }))
+        }
+      }
     }
   }
 

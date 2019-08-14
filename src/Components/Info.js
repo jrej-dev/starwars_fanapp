@@ -24,6 +24,7 @@ class Info extends Component {
     const values = Object.values(results);
 
     for (let i = 0; i < titles.length; i++) {
+      
       if (values[i].length === 0) {
         let title = titles[i];
         this.setState(prevState => ({
@@ -102,7 +103,7 @@ class Info extends Component {
               <tbody className="tableBody">
                 <tr className='tableTitleRow' >
                   <th key="title" style={{ textAlign: "center" }}>
-                    {values[0] + "'s description"}
+                    {values[0] || 'The'} description
                   </th>
                 </tr>
               </tbody>
