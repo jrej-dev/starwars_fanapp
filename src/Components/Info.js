@@ -1,4 +1,4 @@
-import { Redirect } from 'react-router-dom';
+import { Redirect, Link } from 'react-router-dom';
 import React, { Component } from 'react';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
@@ -24,7 +24,7 @@ class Info extends Component {
     const values = Object.values(results);
 
     for (let i = 0; i < titles.length; i++) {
-      
+
       if (values[i].length === 0) {
         let title = titles[i];
         this.setState(prevState => ({
@@ -96,8 +96,13 @@ class Info extends Component {
     }
     return (
       <div className="info">
-        <h1>Detailed Information</h1>
-        <Row className='mt-5 mb-5'>
+        <h2>Detailed Information</h2>
+        <Row>
+          <Link to="/data" className="pl-4 mt-3" style={{ textAlign: "left", color: 'black' }}>
+            Back to search ...
+          </Link>
+        </Row>
+        <Row className='mt-3 mb-5'>
           <Col className="col-centered">
             <table>
               <tbody className="tableBody">
